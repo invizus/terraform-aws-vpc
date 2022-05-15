@@ -1,7 +1,7 @@
 data "aws_region" "current" {}
 
 locals {
-  av_zones = [ "${data.aws_region.current}a", "${data.aws_region.current}b", "${data.aws_region.current}c" ]
+  av_zones = [ "${data.aws_region.current.name}a", "${data.aws_region.current.name}b", "${data.aws_region.current.name}c" ]
 }
 
 resource "aws_vpc" "vpc" {
