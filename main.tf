@@ -1,5 +1,7 @@
+data "aws_region" "current" {}
+
 locals {
-  av_zones = [ "${var.region}a", "${var.region}b", "${var.region}c" ]
+  av_zones = [ "${data.aws_region.current.name}a", "${data.aws_region.current.name}b", "${data.aws_region.current.name}c" ]
 }
 
 resource "aws_vpc" "vpc" {
@@ -16,15 +18,16 @@ resource "aws_main_route_table_association" "internet" {
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
+  tags = var.tags
 }
 
 resource "aws_route_table" "internet" {
   vpc_id = aws_vpc.vpc.id
-  tags = var.tags
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
+  tags = var.tags
 }
 
 # Subnets don't cost so we create three subnets for each use case
@@ -35,9 +38,11 @@ resource "aws_subnet" "public" {
   cidr_block = each.key
   availability_zone = local.av_zones[index(var.public_subnets, each.key) % length(local.av_zones)]
   map_public_ip_on_launch = true
-  tags = {
+  tags = merge(var.tags,
+    {
     Name = "Public ${index(var.public_subnets, each.key)}"
   }
+  )
 }
 
 resource "aws_subnet" "private" {
@@ -47,8 +52,10 @@ resource "aws_subnet" "private" {
   cidr_block = each.key
   availability_zone = local.av_zones[index(var.private_subnets, each.key) % length(local.av_zones)]
   map_public_ip_on_launch = false
-  tags = {
+  tags = merge(var.tags,
+    {
     Name = "Private ${index(var.private_subnets, each.key)}"
-  }
+    }
+    )
 }
 
