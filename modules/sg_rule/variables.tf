@@ -1,6 +1,6 @@
 variable "type" {
   description = "The flow of traffic, ingress or egress."
-  type        = list(string)
+  type        = string
 }
 
 variable "ports" {
