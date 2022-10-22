@@ -10,7 +10,7 @@ variable "ports" {
 
 variable "protocol" {
   description = "Protocol udp or tcp. Defaults to tcp."
-  type        = list(string)
+  type        = string
   default     = "tcp"
 }
 
